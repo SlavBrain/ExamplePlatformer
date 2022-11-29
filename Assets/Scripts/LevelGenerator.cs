@@ -36,10 +36,8 @@ public class LevelGenerator : MonoBehaviour
     {
         gridPosition.y = (int)layer;
 
-        if (_mapMatrix.Contains(gridPosition))
+        if (!TryAddNewCellInMapMatrix(gridPosition))
             return;
-        else
-            _mapMatrix.Add(gridPosition);
 
         var template = GetRandomTemplate(layer);
 
@@ -48,12 +46,20 @@ public class LevelGenerator : MonoBehaviour
 
         var position = GridToWorldPosition(gridPosition);
 
-        Instantiate(template, position, Quaternion.identity, transform);
+        if(template is MapObjectLine)
+        {
+            MapObjectLine templateLine = template as MapObjectLine;
+            templateLine.Init(gridPosition,Quaternion.identity,transform,this);
+        }
+        else
+        {
+            Instantiate(template, position, Quaternion.identity, transform);
+        }
     }
 
     private MapObject GetRandomTemplate(MapLayer layer)
     {
-        var variants = _templates.Where(template => template.Layer[0] == layer);
+        var variants = _templates.Where(template => template.Layer.Where(templateLayer=> templateLayer == layer).ToList().Count!=0);
 
         foreach (var template in variants)
         {
@@ -66,7 +72,7 @@ public class LevelGenerator : MonoBehaviour
         return null;
     }
 
-    private Vector3 GridToWorldPosition(Vector3Int gridPosition)
+    public Vector3 GridToWorldPosition(Vector3Int gridPosition)
     {
         return new Vector3(
             gridPosition.x * _cellSize,
@@ -80,5 +86,18 @@ public class LevelGenerator : MonoBehaviour
             (int)(worldPosition.x / _cellSize),
             (int)(worldPosition.y / _cellSize),
             (int)(worldPosition.z / _cellSize));
+    }
+
+    public bool TryAddNewCellInMapMatrix(Vector3Int gridPosition)
+    {
+        if (_mapMatrix.Contains(gridPosition))
+        { 
+            return false;
+        }
+        else
+        {
+            _mapMatrix.Add(gridPosition);
+            return true;
+        }
     }
 }

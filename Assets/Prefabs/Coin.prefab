@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _layer: 0100000002000000
-  _chance: 12
+  _chance: 3
 --- !u!1 &7225509830437644543
 GameObject:
   m_ObjectHideFlags: 0

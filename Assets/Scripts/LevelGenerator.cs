@@ -10,6 +10,7 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField] private Transform _player;
     [SerializeField] private float _viewRadius;
     [SerializeField] private float _cellSize;
+    [SerializeField] private TemplatesSpawner[] _variations;
 
     private HashSet<Vector3Int> _mapMatrix = new HashSet<Vector3Int>();
 
@@ -25,7 +26,7 @@ public class LevelGenerator : MonoBehaviour
 
         for (int x = -cellCountOnAxis; x < cellCountOnAxis; x++)
         {
-            foreach(MapLayer layer in (MapLayer[])Enum.GetValues(typeof(MapLayer)))
+            foreach (MapLayer layer in (MapLayer[])Enum.GetValues(typeof(MapLayer)))
             {
                 TryCreateOnLayer(layer, fillAreaCenter + new Vector3Int(x, 0, 0));
             }
@@ -36,19 +37,20 @@ public class LevelGenerator : MonoBehaviour
     {
         gridPosition.y = (int)layer;
 
-        if (_mapMatrix.Contains(gridPosition))
+        if (!TryAddNewPositionInGrid(gridPosition))
+        {
             return;
+        }
         else
-            _mapMatrix.Add(gridPosition);
+        {
+            var template = GetRandomTemplateSpawner(layer);
 
-        var template = GetRandomTemplate(layer);
+            if (template == null)
+                return;
 
-        if (template == null)
-            return;
+            template.Spawn(gridPosition, this);
+        }
 
-        var position = GridToWorldPosition(gridPosition);
-
-        Instantiate(template, position, Quaternion.identity, transform);
     }
 
     private MapObject GetRandomTemplate(MapLayer layer)
@@ -66,7 +68,22 @@ public class LevelGenerator : MonoBehaviour
         return null;
     }
 
-    private Vector3 GridToWorldPosition(Vector3Int gridPosition)
+    private TemplatesSpawner GetRandomTemplateSpawner(MapLayer layer)
+    {
+        var variants = _variations.Where(template => template.Template.Layer.Where(availableLayer=> availableLayer == layer).ToList().Count!=0);
+
+        foreach (var variant in variants)
+        {
+            if (variant.Template.Chance > Random.Range(0, 100))
+            {
+                return variant;
+            }
+        }
+
+        return null;
+    }
+
+    public Vector3 GridToWorldPosition(Vector3Int gridPosition)
     {
         return new Vector3(
             gridPosition.x * _cellSize,
@@ -81,4 +98,25 @@ public class LevelGenerator : MonoBehaviour
             (int)(worldPosition.y / _cellSize),
             (int)(worldPosition.z / _cellSize));
     }
+
+    public bool TryAddNewPositionInGrid(Vector3Int gridPosition)
+    {
+       return _mapMatrix.Contains(gridPosition) ? false : _mapMatrix.Add(gridPosition);
+    }
 }
+
+[Serializable]
+internal class TemplatesSpawner
+{
+    [SerializeField] private MapObject _template;
+    [SerializeField] private Spawner _spawner;
+
+    public MapObject Template => _template;
+    public Spawner Spawner => _spawner;
+
+    public void Spawn(Vector3Int gridPosition,LevelGenerator generator)
+    {
+       _spawner.Spawn(_template,gridPosition,generator);
+    }
+}
+

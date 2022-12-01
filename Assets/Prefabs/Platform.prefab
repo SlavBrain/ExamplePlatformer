@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8455977443872943587}
   - component: {fileID: 4449954624265714010}
   - component: {fileID: 6719972696413544942}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -107,7 +107,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8626407003258825521}
   - component: {fileID: 2130593527909227457}
-  m_Layer: 0
+  - component: {fileID: 7283114113580604064}
+  m_Layer: 6
   m_Name: Platform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -144,3 +145,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _layer: 01000000
   _chance: 15
+--- !u!65 &7283114113580604064
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6257418646319816243}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 0.5, z: 1}
+  m_Center: {x: 0, y: 0.25, z: 0}
